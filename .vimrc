@@ -44,7 +44,6 @@ map ze :e
 
 " The default text register is the clipboard.
 set clipboard+=unnamed
-
 set backspace=indent,eol,start
 
 " ~~~~~~ Vundle ~~~~~~ 
@@ -98,10 +97,15 @@ let g:NERDTrimTrailingWhitespace = 1
 
 
 " ~~~~~~~~ NERDtree ~~~~~~~~
-execute "set <M-1>=1"
+
 " Workaround to map alt...
+execute "set <M-1>=1"
 map <M-1> :NERDTreeToggle<CR>
+
 autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif 
+
+let NERDTreeIgnore = ['\.[do]$']
+
 " Used to close vim if NERDtree is the last windows
 
 
@@ -124,3 +128,8 @@ map <Leader>k <Plug>(easymotion-k)
 map <Leader>h <Plug>(easymotion-linebackward)
 
 let g:EasyMotion_startofline = 0 " keep cursor column when JK motion
+
+
+" ~~~~~~~~ CtrlP ~~~~~~~
+
+let g:ctrlp_custom_ignore = '\v\.(o|d|so)$'
