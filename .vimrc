@@ -7,6 +7,7 @@ hi Search term=reverse ctermfg=0 ctermbg=11 guibg=LightBlue
 hi SpellBad term=reverse ctermbg=9 gui=undercurl guisp=Red
 hi Error term=reverse ctermfg=15 ctermbg=9 guifg=White guibg=Red
 hi SignColumn term=standout ctermfg=14 ctermbg=242 guifg=Cyan guibg=Grey
+hi Visual term=reverse cterm=reverse ctermbg=0
 
 " indentation
 filetype plugin indent on
@@ -67,6 +68,8 @@ Plugin 'scrooloose/nerdtree'
 Plugin 'easymotion/vim-easymotion'
 
 Plugin 'ctrlpvim/ctrlp.vim'
+
+Plugin 'terryma/vim-multiple-cursors'
 
 call vundle#end()            " required
 
@@ -133,3 +136,14 @@ let g:EasyMotion_startofline = 0 " keep cursor column when JK motion
 " ~~~~~~~~ CtrlP ~~~~~~~
 
 let g:ctrlp_custom_ignore = '\v\.(o|d|so)$'
+
+
+" ~~~~~~~~ Multiple Cursor ~~~~~~~
+
+let g:multi_cursor_use_default_mapping=0
+let g:multi_cursor_next_key='<C-d>'
+let g:multi_cursor_prev_key='<C-p>'
+let g:multi_cursor_skip_key='<C-x>'
+let g:multi_cursor_quit_key='<Esc>'
+
+
