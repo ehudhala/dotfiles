@@ -17,7 +17,9 @@ set shiftwidth=4
 set expandtab
 
 " build
-map <F5> <Esc>:wa<CR>:!make -j 4<CR>
+" map <F5> <Esc>:wa<CR>:!make -j 4<CR>
+" map <F5> <Esc>:wa<CR>:!cd ./build && cmake .. && make -j 4 && ./tests;<CR>
+map <F5> <Esc>:wa<CR>:!cd ./build && make -j 4 && ./tests;<CR>
 
 " movement on wrapped lines
 nmap j gj
@@ -70,6 +72,8 @@ Plugin 'easymotion/vim-easymotion'
 Plugin 'ctrlpvim/ctrlp.vim'
 
 Plugin 'terryma/vim-multiple-cursors'
+
+Plugin 'greplace.vim'
 
 call vundle#end()            " required
 
@@ -135,8 +139,21 @@ let g:EasyMotion_startofline = 0 " keep cursor column when JK motion
 
 " ~~~~~~~~ CtrlP ~~~~~~~
 
-let g:ctrlp_custom_ignore = '\v\.(o|d|so)$'
+" let g:ctrlp_custom_ignore = '\v\.(o|d|so)$'
 
+" The Silver Searcher
+if executable('ag')
+  " Use ag over grep
+  set grepprg=ag\ --nogroup\ --nocolor
+
+  " Use ag in CtrlP for listing files. Lightning fast and respects .gitignore
+  let g:ctrlp_user_command = 'ag %s -l --nocolor -g ""'
+endif
+
+map zp :CtrlP<Enter>
+
+" let g:ctrlp_prompt_mappings = {'PrtExit()': ['<esc>', '<c-c>', '<c-g>', 'jj'],}
+" TODO: try to fix jj to exit CtrlP`
 
 " ~~~~~~~~ Multiple Cursor ~~~~~~~
 
