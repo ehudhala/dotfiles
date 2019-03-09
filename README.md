@@ -1,4 +1,6 @@
 # dotfiles
 My dotfiles
 
-Currently only stores my .vimrc
+On my laptop touchscreen didn't work after wakeup.
+In order to fix the problem - create a resume script to reset the wacom kernel modules responsible for the touchscreen on resume.
+> ln -s 99wacom_restart_touchsreen /lib/systemd/system-sleep/
