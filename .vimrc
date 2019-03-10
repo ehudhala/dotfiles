@@ -1,26 +1,22 @@
-set nocompatible
-imap jj <Esc>
+" Panes
+map zh <C-W>h
+map zj <C-W>j
+map zk <C-W>k
+map zl <C-W>l
+map zs <C-W>s
+map zv <C-W>v
 
-" Highlighting
-syntax on
-hi Search term=reverse ctermfg=0 ctermbg=11 guibg=LightBlue
-hi SpellBad term=reverse ctermbg=9 gui=undercurl guisp=Red
-hi Error term=reverse ctermfg=15 ctermbg=9 guifg=White guibg=Red
-hi SignColumn term=standout ctermfg=14 ctermbg=242 guifg=Cyan guibg=Grey
-hi Visual term=reverse cterm=reverse ctermbg=0
+" Useful shortcuts
+imap jj <Esc>
+map zq :q<CR>
+map zw :w<CR>
+map ze :e 
 
 " indentation
-filetype plugin indent on
-
 set tabstop=4
 set shiftwidth=4
 set expandtab
-
-" build
-" map <F5> <Esc>:wa<CR>:!make -j 4<CR>
-" map <F5> <Esc>:wa<CR>:!cd ./build && cmake .. && make -j 4 && ./tests;<CR>
-map <F5> <Esc>:wa<CR>:!cd ./build && make -j 4 && ./tests;<CR>
-
+ 
 " movement on wrapped lines
 nmap j gj
 nmap k gk
@@ -32,58 +28,43 @@ set smartcase
 set hlsearch
 nmap \q :nohlsearch<CR>
 
-" Panes
-map zh <C-W>h
-map zj <C-W>j
-map zk <C-W>k
-map zl <C-W>l
-map zs <C-W>s
-map zv <C-W>v
+" Plugins
 
-" Useful shortcuts
-map zq :q<CR>
-map zw :w<CR>
-map ze :e 
+call plug#begin('~/.local/share/nvim/plugged')
 
-" The default text register is the clipboard.
-set clipboard+=unnamed
-set backspace=indent,eol,start
+Plug 'erichdongubler/vim-sublime-monokai'
 
-" ~~~~~~ Vundle ~~~~~~ 
+Plug 'scrooloose/nerdtree'
 
-filetype off                  " required
+Plug 'scrooloose/nerdcommenter'
 
-" set the runtime path to include Vundle and initialize
-set rtp+=~/.vim/bundle/Vundle.vim
-call vundle#begin()
-" let Vundle manage Vundle, required
-Plugin 'VundleVim/Vundle.vim'
+" Plug 'valloric/youcompleteme'
 
-Plugin 'scrooloose/nerdcommenter'
+" Plug 'tpope/vim-fugitive'
 
-Plugin 'valloric/youcompleteme'
+" Plug 'easymotion/vim-easymotion'
 
-Plugin 'tpope/vim-fugitive'
+" Plug 'ctrlpvim/ctrlp.vim'
 
-Plugin 'scrooloose/nerdtree'
+" Plug 'terryma/vim-multiple-cursors'
 
-Plugin 'easymotion/vim-easymotion'
+" Plug 'greplace.vim'
 
-Plugin 'ctrlpvim/ctrlp.vim'
+call plug#end()
 
-Plugin 'terryma/vim-multiple-cursors'
+" Syntax highlighting
+syntax enable
+colorscheme sublimemonokai
+set termguicolors
 
-Plugin 'greplace.vim'
+" ~~~~~~~~ NERDtree ~~~~~~~~
 
-call vundle#end()            " required
+map <M-1> :NERDTreeToggle<CR>
 
-filetype plugin indent on    " required
+" Used to close vim if NERDtree is the last windows
+autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif 
 
-" ~~~~~~~ YouComleteMe ~~~~~~
- 
-nnoremap <F4> :YcmCompleter GoTo<CR>
-
-let g:ycm_global_ycm_extra_conf = '~/.vim/.ycm_extra_conf.py'
+let NERDTreeIgnore = ['\.[do]$']
 
 " ~~~~~~~ NERD Commenter ~~~~~~
 
@@ -101,66 +82,3 @@ let g:NERDCommentEmptyLines = 1
 
 " Enable trimming of trailing whitespace when uncommenting
 let g:NERDTrimTrailingWhitespace = 1
-
-
-" ~~~~~~~~ NERDtree ~~~~~~~~
-
-" Workaround to map alt...
-execute "set <M-1>=1"
-map <M-1> :NERDTreeToggle<CR>
-
-autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif 
-
-let NERDTreeIgnore = ['\.[do]$']
-
-" Used to close vim if NERDtree is the last windows
-
-
-" ~~~~~~~~ EasyMotion ~~~~~~~
-let g:EasyMotion_do_mapping = 0 " Disable default mappings
-
-let g:EasyMotion_smartcase = 1
-
-" <Leader>f{char} to move to {char}
-map  <Leader>f <Plug>(easymotion-bd-f)
-nmap <Leader>f <Plug>(easymotion-overwin-f)
-
-" Move to word
-map  <Leader>w <Plug>(easymotion-bd-w)
-nmap <Leader>w <Plug>(easymotion-overwin-w)
-
-map <Leader>l <Plug>(easymotion-lineforward)
-map <Leader>j <Plug>(easymotion-j)
-map <Leader>k <Plug>(easymotion-k)
-map <Leader>h <Plug>(easymotion-linebackward)
-
-let g:EasyMotion_startofline = 0 " keep cursor column when JK motion
-
-
-" ~~~~~~~~ CtrlP ~~~~~~~
-
-" let g:ctrlp_custom_ignore = '\v\.(o|d|so)$'
-
-" The Silver Searcher
-if executable('ag')
-  " Use ag over grep
-  set grepprg=ag\ --nogroup\ --nocolor
-
-  " Use ag in CtrlP for listing files. Lightning fast and respects .gitignore
-  let g:ctrlp_user_command = 'ag %s -l --nocolor -g ""'
-endif
-
-map zp :CtrlP<Enter>
-
-" let g:ctrlp_prompt_mappings = {'PrtExit()': ['<esc>', '<c-c>', '<c-g>', 'jj'],}
-" TODO: try to fix jj to exit CtrlP`
-
-" ~~~~~~~~ Multiple Cursor ~~~~~~~
-
-let g:multi_cursor_use_default_mapping=0
-let g:multi_cursor_next_key='<C-d>'
-let g:multi_cursor_prev_key='<C-p>'
-let g:multi_cursor_skip_key='<C-x>'
-let g:multi_cursor_quit_key='<Esc>'
-
-
