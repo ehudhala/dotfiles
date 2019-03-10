@@ -40,11 +40,9 @@ Plug 'scrooloose/nerdcommenter'
 
 " Plug 'valloric/youcompleteme'
 
-" Plug 'tpope/vim-fugitive'
-
 " Plug 'easymotion/vim-easymotion'
 
-" Plug 'ctrlpvim/ctrlp.vim'
+Plug 'ctrlpvim/ctrlp.vim'
 
 " Plug 'terryma/vim-multiple-cursors'
 
@@ -82,3 +80,17 @@ let g:NERDCommentEmptyLines = 1
 
 " Enable trimming of trailing whitespace when uncommenting
 let g:NERDTrimTrailingWhitespace = 1
+
+" ~~~~~~~~ CtrlP ~~~~~~~
+
+" The Silver Searcher
+if executable('ag')
+  " Use ag over grep
+  set grepprg=ag\ --nogroup\ --nocolor
+
+  " Use ag in CtrlP for listing files. Lightning fast and respects .gitignore
+  let g:ctrlp_user_command = 'ag %s -l --nocolor -g ""'
+endif
+
+map zp :CtrlP<Enter>
+
