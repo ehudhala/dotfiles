@@ -38,15 +38,11 @@ Plug 'scrooloose/nerdtree'
 
 Plug 'scrooloose/nerdcommenter'
 
-" Plug 'valloric/youcompleteme'
+Plug 'valloric/youcompleteme'
 
 " Plug 'easymotion/vim-easymotion'
 
 Plug 'ctrlpvim/ctrlp.vim'
-
-" Plug 'terryma/vim-multiple-cursors'
-
-" Plug 'greplace.vim'
 
 call plug#end()
 
@@ -94,3 +90,8 @@ endif
 
 map zp :CtrlP<Enter>
 
+" ~~~~~~~ YouComleteMe ~~~~~~
+
+nnoremap <F4> :YcmCompleter GoTo<CR>
+
+let g:ycm_global_ycm_extra_conf = '~/dotfiles/.ycm_extra_conf.py'
