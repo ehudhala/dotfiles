@@ -7,4 +7,5 @@ In order to fix the problem - create a resume script to reset the wacom kernel m
 > ln -s 99wacom_restart_touchsreen /lib/systemd/system-sleep/
 
 In order to fix multitouch, I add the following to every user's `~/.profile`:
-> xsetwacom set 10 Gesture "off"
+> xsetwacom set 11 Gesture "off"
+(11 is the id of the touch device of `xsetwacom --list devices`
