@@ -123,13 +123,74 @@ export ZSH_AUTOSUGGEST_STRATEGY=(history completion)
 export LESS="-F -X $LESS"
 
 # export PYTHONBREAKPOINT="IPython.embed"
-export PYTHONBREAKPOINT="treats.tools.remote_pycharm_debug"
+export PYTHONBREAKPOINT="coding.treats.tools.remote_pycharm_debug"
 
 export GOOGLE_APPLICATION_CREDENTIALS=/home/ehud/nym/anki/inbound-planet-201708-054c397157b0.json
 
 source $HOME/.poetry/env
 
+poweron() {
+    set -x
+    aws ec2 start-instances --instance-ids $(aws ec2 describe-instances --filters "Name=tag:Name,Values=$1" --output json --query 'Reservations[0].Instances[0].InstanceId' | jq -r .)
+}
+poweroff() {
+    set -x
+    aws ec2 stop-instances --instance-ids $(aws ec2 describe-instances --filters "Name=tag:Name,Values=$1" --output json --query 'Reservations[0].Instances[0].InstanceId' | jq -r .)
+}
+resize() {
+    set -x
+    aws ec2 modify-instance-attribute --instance-id $(aws ec2 describe-instances --filters "Name=tag:Name,Values=$1" --output json --query 'Reservations[0].Instances[0].InstanceId' | jq -r .) --instance-type "{\"Value\": \"$2\"}"
+}
+
+git config --global alias.ammend 'commit --amend --no-edit'
 git config --global alias.openpr '!"$BROWSER" "https://bitbucket.org/nymhealth/au/pull-requests/new?source=$(git symbolic-ref --short HEAD)"'
 git config --global alias.pushu "push -u origin HEAD"
+git config --global alias.runab '!run_test() {
+    set -x
+    git pull origin develop --no-edit
+    git push
+    url="https://jenkins.analytics.nymhealth.com/job/Coding%20Flow%20A-B%20Test/job/develop"
+    test_id=""
+    charts_amount="&RANDOM_CHARTS_NUMBER=1500"
+    parsers=""
+	while getopts "t:c:p:" opt; do
+		case "$opt" in
+		t)  test_id="&CHOOSE_SAME_CHARTS_OF_TEST_ID="$OPTARG
+            # charts_amount=""
+			;;
+		c)  charts_amount="&RANDOM_CHARTS_NUMBER="$OPTARG
+			;;
+		p)  parsers="&PARSERS="$OPTARG
+			;;
+		esac
+	done
+    echo $parsers
+    curl -D - -X POST $url"/buildWithParameters?dealy=0sec&AU_BRANCH="$(git symbolic-ref --short HEAD)"&TEST_TITLE="$(git symbolic-ref --short HEAD)"%20ab%20test"$test_id$charts_amount$parsers --user ehud:<SET_ME_TO_TOKEN>
+    # token from https://jenkins.analytics.nymhealth.com/user/<user>/configure
+
+    "$BROWSER" $url
+}; run_test'
+git config --global alias.runtest '!run_test() {
+    url="https://jenkins.analytics.nymhealth.com/job/Coding%20Flow/job/develop"
+    test_id=""
+    charts_amount="&RANDOM_CHARTS_NUMBER=1500"
+    parsers=""
+	while getopts "t:c:p:" opt; do
+		case "$opt" in
+		t)  test_id="&CHOOSE_SAME_CHARTS_OF_TEST_ID="$OPTARG
+            # charts_amount=""
+			;;
+		c)  charts_amount="&RANDOM_CHARTS_NUMBER="$OPTARG
+			;;
+		p)  parsers="&PARSERS="$OPTARG
+			;;
+		esac
+	done
+    echo $parsers
+    curl -D - -X POST $url"/buildWithParameters?dealy=0sec&AU_BRANCH="$(git symbolic-ref --short HEAD)"&TEST_TITLE="$(git symbolic-ref --short HEAD)"%20ab%20test"$test_id$charts_amount$parsers --user ehud:<SET_ME_TO_TOKEN>
+    # token from https://jenkins.analytics.nymhealth.com/user/<user>/configure
+
+    "$BROWSER" $url
+}; run_test'
 
 eval "$(starship init zsh)"
