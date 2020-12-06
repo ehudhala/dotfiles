@@ -30,7 +30,7 @@ nmap \q :nohlsearch<CR>
 
 " Plugins
 
-call plug#begin('~/.local/share/nvim/plugged')
+call plug#begin('~/.vim/plugged')
 
 Plug 'erichdongubler/vim-sublime-monokai'
 
