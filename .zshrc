@@ -68,7 +68,7 @@ ZSH_THEME="robbyrussell"
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git zsh-autosuggestions poetry)
+plugins=(git zsh-autosuggestions zsh-syntax-highlighting poetry)
 # plugins=(git)
 
 source $ZSH/oh-my-zsh.sh
@@ -109,12 +109,12 @@ bindkey -v
 export KEYTIMEOUT=1
 bindkey '^R' history-incremental-search-backward
 
-export EDITOR="nvim"
-export BROWSER="/mnt/c/Program Files (x86)/Google/Chrome/Application/chrome.exe"
+export EDITOR="vim"
+export BROWSER="/mnt/c/Program Files/Google/Chrome/Application/chrome.exe"
 
 cd ~/nym/au
-# source ~/nym/env/bin/activate
-alias python="/usr/bin/python3.7"
+source ~/nym/env/bin/activate
+# alias python="/usr/bin/python3.7"
 alias start="explorer.exe"
 # export DISPLAY=$(grep -m 1 nameserver /etc/resolv.conf | awk '{print $2}'):0.0
 export LIBGL_ALWAYS_INDIRECT=1
@@ -143,7 +143,7 @@ resize() {
 }
 
 git config --global alias.ammend 'commit --amend --no-edit'
-git config --global alias.openpr '!"$BROWSER" "https://bitbucket.org/nymhealth/au/pull-requests/new?source=$(git symbolic-ref --short HEAD)"'
+git config --global alias.openpr '!"$BROWSER" "https://bitbucket.org/nymhealth/$(basename `git rev-parse --show-toplevel`)/pull-requests/new?source=$(git symbolic-ref --short HEAD)"'
 git config --global alias.pushu "push -u origin HEAD"
 git config --global alias.runab '!run_test() {
     set -x
