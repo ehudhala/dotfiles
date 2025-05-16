@@ -1,14 +1,23 @@
+# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
+# Initialization code that may require console input (password prompts, [y/n]
+# confirmations, etc.) must go above this block; everything else may go below.
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
+
 # If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
+#
 
 # Path to your oh-my-zsh installation.
-export ZSH="/home/ehud/.oh-my-zsh"
+export ZSH="$HOME/.oh-my-zsh"
 
 # Set name of the theme to load --- if set to "random", it will
 # load a random theme each time oh-my-zsh is loaded, in which case,
 # to know which specific one was loaded, run: echo $RANDOM_THEME
 # See https://github.com/ohmyzsh/ohmyzsh/wiki/Themes
-ZSH_THEME="robbyrussell"
+# ZSH_THEME="robbyrussell"
+ZSH_THEME="powerlevel10k/powerlevel10k"
 
 # Set list of themes to pick from when loading at random
 # Setting this variable when ZSH_THEME=random will cause zsh to load
@@ -68,7 +77,7 @@ ZSH_THEME="robbyrussell"
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git zsh-autosuggestions zsh-syntax-highlighting poetry)
+plugins=(git zsh-autosuggestions zsh-syntax-highlighting kubectl kubectx)
 # plugins=(git)
 
 source $ZSH/oh-my-zsh.sh
@@ -110,20 +119,21 @@ export KEYTIMEOUT=1
 bindkey '^R' history-incremental-search-backward
 
 export EDITOR="vim"
-export BROWSER="/mnt/c/Program Files/Google/Chrome/Application/chrome.exe"
+export BROWSER="open"
 
-cd ~/nym/au
-source ~/nym/env/bin/activate
+cd ~/projects/au
+source ~/projects/env3.11/bin/activate
 # alias python="/usr/bin/python3.7"
-alias start="explorer.exe"
+# alias start="explorer.exe"
 # export DISPLAY=$(grep -m 1 nameserver /etc/resolv.conf | awk '{print $2}'):0.0
 export LIBGL_ALWAYS_INDIRECT=1
 
-export ZSH_AUTOSUGGEST_STRATEGY=(history completion)
+#export ZSH_AUTOSUGGEST_STRATEGY=(history completion)
+export ZSH_AUTOSUGGEST_STRATEGY=(history)
 export LESS="-F -X $LESS"
 
 # export PYTHONBREAKPOINT="IPython.embed"
-export PYTHONBREAKPOINT="coding.treats.tools.remote_pycharm_debug"
+export PYTHONBREAKPOINT="biscuits.tools.remote_pycharm_debug"
 
 export GOOGLE_APPLICATION_CREDENTIALS=/home/ehud/nym/anki/inbound-planet-201708-054c397157b0.json
 
@@ -131,32 +141,46 @@ source $HOME/.poetry/env
 
 poweron() {
     set -x
-    aws ec2 start-instances --instance-ids $(aws ec2 describe-instances --filters "Name=tag:Name,Values=$1" --output json --query 'Reservations[0].Instances[0].InstanceId' | jq -r .)
+    aws ec2 --profile ehud_user start-instances --instance-ids $(aws ec2 --profile ehud_user describe-instances --filters "Name=tag:Name,Values=$1" --output json --query 'Reservations[0].Instances[0].InstanceId' | jq -r .)
 }
 poweroff() {
     set -x
-    aws ec2 stop-instances --instance-ids $(aws ec2 describe-instances --filters "Name=tag:Name,Values=$1" --output json --query 'Reservations[0].Instances[0].InstanceId' | jq -r .)
+    aws ec2 --profile ehud_user stop-instances --instance-ids $(aws ec2 --profile ehud_user describe-instances --filters "Name=tag:Name,Values=$1" --output json --query 'Reservations[0].Instances[0].InstanceId' | jq -r .)
+}
+powerofff() {
+    set -x
+    aws ec2 --profile ehud_user stop-instances -f --instance-ids $(aws ec2 --profile ehud_user describe-instances --filters "Name=tag:Name,Values=$1" --output json --query 'Reservations[0].Instances[0].InstanceId' | jq -r .)
 }
 resize() {
     set -x
-    aws ec2 modify-instance-attribute --instance-id $(aws ec2 describe-instances --filters "Name=tag:Name,Values=$1" --output json --query 'Reservations[0].Instances[0].InstanceId' | jq -r .) --instance-type "{\"Value\": \"$2\"}"
+    aws ec2 --profile ehud_user modify-instance-attribute --instance-id $(aws ec2 --profile ehud_user describe-instances --filters "Name=tag:Name,Values=$1" --output json --query 'Reservations[0].Instances[0].InstanceId' | jq -r .) --instance-type "{\"Value\": \"$2\"}"
+}
+assh() {
+        #ssh  -o "IdentitiesOnly=yes" -i ~/.ssh/aws-admin $1@$(aws ec2 describe-instances --instance-id $2 --output text --query 'Reservations[0].Instances[0].PrivateIpAddress')
+        ssh  -o "IdentitiesOnly=yes" $1@$(aws ec2 --profile ehud_user describe-instances --instance-id $2 --output text --query 'Reservations[0].Instances[0].PrivateIpAddress')
 }
 
+git config --global alias.co 'checkout'
 git config --global alias.ammend 'commit --amend --no-edit'
-git config --global alias.openpr '!"$BROWSER" "https://bitbucket.org/nymhealth/$(basename `git rev-parse --show-toplevel`)/pull-requests/new?source=$(git symbolic-ref --short HEAD)"'
+git config --global alias.commitmb '!git commit -m $(git symbolic-ref --short HEAD)'
 git config --global alias.pushu "push -u origin HEAD"
+# git config --global alias.openpr '!git pushu; "$BROWSER" "https://bitbucket.org/nymhealth/$(basename `git rev-parse --show-toplevel`)/pull-requests/new?source=$(git symbolic-ref --short HEAD)"'
+git config --global alias.openpr '!git pushu; "$BROWSER" "https://github.com/Nym-Health/$(basename `git rev-parse --show-toplevel`)/compare/$(git symbolic-ref --short HEAD)?expand=1"'
+git config --global alias.recent '!~/dotfiles/git_recent.sh $*' # from https://gist.github.com/jordan-brough/48e2803c0ffa6dc2e0bd
+git config --global alias.runcron '!cd ~/projects/environments; date; git pull; git add -p; git commit -m "run now"; git push; git revert HEAD; date;'
+git config --global alias.pull 'pull --no-edit'
 git config --global alias.runab '!run_test() {
     set -x
     git pull origin develop --no-edit
     git push
-    url="https://jenkins.analytics.nymhealth.com/job/Coding%20Flow%20A-B%20Test/job/develop"
+    url="https://jenkins.analytics.nymhealth.com/job/coding/job/coding_flow_a_b/job/develop/"
     test_id=""
-    charts_amount="&RANDOM_CHARTS_NUMBER=1500"
+    charts_amount="&RANDOM_CHARTS_NUMBER=0"
     parsers=""
 	while getopts "t:c:p:" opt; do
 		case "$opt" in
 		t)  test_id="&CHOOSE_SAME_CHARTS_OF_TEST_ID="$OPTARG
-            # charts_amount=""
+            charts_amount="&RANDOM_CHARTS_NUMBER=0"
 			;;
 		c)  charts_amount="&RANDOM_CHARTS_NUMBER="$OPTARG
 			;;
@@ -165,20 +189,21 @@ git config --global alias.runab '!run_test() {
 		esac
 	done
     echo $parsers
-    curl -D - -X POST $url"/buildWithParameters?dealy=0sec&AU_BRANCH="$(git symbolic-ref --short HEAD)"&TEST_TITLE="$(git symbolic-ref --short HEAD)"%20ab%20test"$test_id$charts_amount$parsers --user ehud:<SET_ME_TO_TOKEN>
+    repo=$(basename $(git rev-parse --show-toplevel) |  tr "[:lower:]" "[:upper:]")
+    curl -D - -X POST $url"/buildWithParameters?dealy=0sec&"$repo"_BRANCH="$(git symbolic-ref --short HEAD)"&SCALE=0+-+1k+charts&USE_MODELS_CACHE_DB=YES&CUSTOM_LOCAL_SERVICES=\"\"&BASELINE_CUSTOM_LOCAL_SERVICES=\"\"&TEST_TITLE="$(git symbolic-ref --short HEAD)"%20ab%20test"$test_id$charts_amount$parsers --user ehud:<token>
     # token from https://jenkins.analytics.nymhealth.com/user/<user>/configure
 
     "$BROWSER" $url
 }; run_test'
 git config --global alias.runtest '!run_test() {
-    url="https://jenkins.analytics.nymhealth.com/job/Coding%20Flow/job/develop"
+    url="https://jenkins.analytics.nymhealth.com/job/coding/job/coding_flow/job/develop/"
     test_id=""
-    charts_amount="&RANDOM_CHARTS_NUMBER=1500"
+    charts_amount="&RANDOM_CHARTS_NUMBER=0"
     parsers=""
 	while getopts "t:c:p:" opt; do
 		case "$opt" in
 		t)  test_id="&CHOOSE_SAME_CHARTS_OF_TEST_ID="$OPTARG
-            # charts_amount=""
+            charts_amount="&RANDOM_CHARTS_NUMBER=0"
 			;;
 		c)  charts_amount="&RANDOM_CHARTS_NUMBER="$OPTARG
 			;;
@@ -187,10 +212,40 @@ git config --global alias.runtest '!run_test() {
 		esac
 	done
     echo $parsers
-    curl -D - -X POST $url"/buildWithParameters?dealy=0sec&AU_BRANCH="$(git symbolic-ref --short HEAD)"&TEST_TITLE="$(git symbolic-ref --short HEAD)"%20ab%20test"$test_id$charts_amount$parsers --user ehud:<SET_ME_TO_TOKEN>
+    repo=$(basename $(git rev-parse --show-toplevel) |  tr "[:lower:]" "[:upper:]")
+    curl -D - -X POST $url"/buildWithParameters?dealy=0sec&"$repo"_BRANCH="$(git symbolic-ref --short HEAD)"&SCALE=0+-+1k+charts&CUSTOM_LOCAL_SERVICES=\"\"&USE_MODELS_CACHE_DB=YES&TEST_TITLE="$(git symbolic-ref --short HEAD)"%20ab%20test"$test_id$charts_amount$parsers --user ehud:<token>
     # token from https://jenkins.analytics.nymhealth.com/user/<user>/configure
 
     "$BROWSER" $url
 }; run_test'
+git config --global alias.runall '!run_all_tests() {
+    url="https://jenkins.analytics.nymhealth.com/job/test/job/run_all_tests/job/develop/"
+    repo=$(basename $(git rev-parse --show-toplevel) |  tr "[:lower:]" "[:upper:]")
+    curl -D - -X POST $url"/buildWithParameters?dealy=0sec&"$repo"_BRANCH="$(git symbolic-ref --short HEAD) --user ehud:<token>
+    # token from https://jenkins.analytics.nymhealth.com/user/<user>/configure
+
+    "$BROWSER" $url
+}; run_all_tests'
+
+export ITERM2_SQUELCH_MARK=1
+test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
 
 eval "$(starship init zsh)"
+
+alias m4b-tool='docker run -it --rm -u $(id -u):$(id -g) -v "$(pwd)":/mnt m4b-tool'
+
+
+alias k='kubectl'
+
+export DEV_NAME=ehud
+bindkey -e
+
+[ -f "/Users/ehud/.ghcup/env" ] && source "/Users/ehud/.ghcup/env" # ghcup-env
+alias black=black -l 160 -S -t py311
+
+# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
+[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+
+# source ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k/config/p10k-robbyrussell.zsh
+# source ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k/powerlevel10k.zsh-theme
+export PATH=/Library/Frameworks/Python.framework/Versions/3.11/bin/:$PATH
