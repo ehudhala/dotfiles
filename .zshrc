@@ -5,10 +5,12 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
 
+
 # If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
 #
 
+ZSH_DISABLE_COMPFIX=true
 # Path to your oh-my-zsh installation.
 export ZSH="$HOME/.oh-my-zsh"
 
@@ -122,7 +124,7 @@ export EDITOR="vim"
 export BROWSER="open"
 
 cd ~/projects/au
-source ~/projects/env3.11/bin/activate
+# source ~/projects/env3.11/bin/activate
 # alias python="/usr/bin/python3.7"
 # alias start="explorer.exe"
 # export DISPLAY=$(grep -m 1 nameserver /etc/resolv.conf | awk '{print $2}'):0.0
@@ -135,29 +137,30 @@ export LESS="-F -X $LESS"
 # export PYTHONBREAKPOINT="IPython.embed"
 export PYTHONBREAKPOINT="biscuits.tools.remote_pycharm_debug"
 
-export GOOGLE_APPLICATION_CREDENTIALS=/home/ehud/nym/anki/inbound-planet-201708-054c397157b0.json
+# export GOOGLE_APPLICATION_CREDENTIALS=/home/ehud/nym/anki/inbound-planet-201708-054c397157b0.json
 
 source $HOME/.poetry/env
+export LDFLAGS="-L/usr/local/opt/python@3.7/lib"
 
 poweron() {
     set -x
-    aws ec2 --profile ehud_user start-instances --instance-ids $(aws ec2 --profile ehud_user describe-instances --filters "Name=tag:Name,Values=$1" --output json --query 'Reservations[0].Instances[0].InstanceId' | jq -r .)
+    aws ec2 --profile ehud start-instances --instance-ids $(aws ec2 --profile ehud describe-instances --filters "Name=tag:Name,Values=$1" --output json --query 'Reservations[0].Instances[0].InstanceId' | jq -r .)
 }
 poweroff() {
     set -x
-    aws ec2 --profile ehud_user stop-instances --instance-ids $(aws ec2 --profile ehud_user describe-instances --filters "Name=tag:Name,Values=$1" --output json --query 'Reservations[0].Instances[0].InstanceId' | jq -r .)
+    aws ec2 --profile ehud stop-instances --instance-ids $(aws ec2 --profile ehud describe-instances --filters "Name=tag:Name,Values=$1" --output json --query 'Reservations[0].Instances[0].InstanceId' | jq -r .)
 }
 powerofff() {
     set -x
-    aws ec2 --profile ehud_user stop-instances -f --instance-ids $(aws ec2 --profile ehud_user describe-instances --filters "Name=tag:Name,Values=$1" --output json --query 'Reservations[0].Instances[0].InstanceId' | jq -r .)
+    aws ec2 --profile ehud stop-instances -f --instance-ids $(aws ec2 --profile ehud describe-instances --filters "Name=tag:Name,Values=$1" --output json --query 'Reservations[0].Instances[0].InstanceId' | jq -r .)
 }
 resize() {
     set -x
-    aws ec2 --profile ehud_user modify-instance-attribute --instance-id $(aws ec2 --profile ehud_user describe-instances --filters "Name=tag:Name,Values=$1" --output json --query 'Reservations[0].Instances[0].InstanceId' | jq -r .) --instance-type "{\"Value\": \"$2\"}"
+    aws ec2 --profile ehud modify-instance-attribute --instance-id $(aws ec2 --profile ehud describe-instances --filters "Name=tag:Name,Values=$1" --output json --query 'Reservations[0].Instances[0].InstanceId' | jq -r .) --instance-type "{\"Value\": \"$2\"}"
 }
 assh() {
         #ssh  -o "IdentitiesOnly=yes" -i ~/.ssh/aws-admin $1@$(aws ec2 describe-instances --instance-id $2 --output text --query 'Reservations[0].Instances[0].PrivateIpAddress')
-        ssh  -o "IdentitiesOnly=yes" $1@$(aws ec2 --profile ehud_user describe-instances --instance-id $2 --output text --query 'Reservations[0].Instances[0].PrivateIpAddress')
+        ssh  -i ~/.ssh/aws_admin_rsa -o "IdentitiesOnly=yes" $1@$(aws ec2 --profile ehud describe-instances --instance-id $2 --output text --query 'Reservations[0].Instances[0].PrivateIpAddress')
 }
 
 git config --global alias.co 'checkout'
@@ -169,6 +172,7 @@ git config --global alias.openpr '!git pushu; "$BROWSER" "https://github.com/Nym
 git config --global alias.recent '!~/dotfiles/git_recent.sh $*' # from https://gist.github.com/jordan-brough/48e2803c0ffa6dc2e0bd
 git config --global alias.runcron '!cd ~/projects/environments; date; git pull; git add -p; git commit -m "run now"; git push; git revert HEAD; date;'
 git config --global alias.pull 'pull --no-edit'
+git config --global alias.cpbranch '!echo $(git symbolic-ref --short HEAD) | pbcopy'
 git config --global alias.runab '!run_test() {
     set -x
     git pull origin develop --no-edit
@@ -240,6 +244,8 @@ alias k='kubectl'
 export DEV_NAME=ehud
 bindkey -e
 
+export LC_TIME=en_US.UTF-8
+
 [ -f "/Users/ehud/.ghcup/env" ] && source "/Users/ehud/.ghcup/env" # ghcup-env
 alias black=black -l 160 -S -t py311
 
@@ -249,3 +255,7 @@ alias black=black -l 160 -S -t py311
 # source ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k/config/p10k-robbyrussell.zsh
 # source ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k/powerlevel10k.zsh-theme
 export PATH=/Library/Frameworks/Python.framework/Versions/3.11/bin/:$PATH
+
+. "$HOME/.local/bin/env"
+eval "$(uv generate-shell-completion zsh)"
+eval "$(uvx --generate-shell-completion zsh)"
