@@ -44,6 +44,8 @@ Plug 'scrooloose/nerdcommenter'
 
 Plug 'ctrlpvim/ctrlp.vim'
 
+Plug 'powerman/vim-plugin-AnsiEsc'
+
 call plug#end()
 
 " Syntax highlighting
@@ -95,3 +97,9 @@ map zp :CtrlP<Enter>
 nnoremap <F4> :YcmCompleter GoTo<CR>
 
 let g:ycm_global_ycm_extra_conf = '~/dotfiles/.ycm_extra_conf.py'
+syntax on
+
+" For fast ts
+set re=0
+
+:set number
